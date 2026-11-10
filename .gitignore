@@ -1,0 +1,9 @@
+.env
+*.db
+__pycache__/
+mosquitto/passwords
+evidence/
+
+data/*.json
+compose.server.yaml
+data/telemetry.csv

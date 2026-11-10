@@ -1,0 +1,15 @@
+{
+  "unit_tests": "3/3 passed",
+  "http": "health, historic query, unauthorized rejection, command ACK and persistent state passed",
+  "live_control": "pause 6 s: stable count; resume 6 s: count increased",
+  "csv": "57600 values; 40 series; 1440 samples/series; 300 s spacing",
+  "pdf": "19 pages, all rendered and visually inspected",
+  "not_tested": [
+    "Docker Compose runtime",
+    "PostgreSQL/Grafana live",
+    "MQTT actual exchange",
+    "public HTTPS",
+    "physical sensors",
+    "external API"
+  ]
+}

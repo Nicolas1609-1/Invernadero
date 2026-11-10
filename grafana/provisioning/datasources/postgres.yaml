@@ -1,0 +1,15 @@
+apiVersion: 1
+datasources:
+  - name: Invernadero
+    uid: greenhouse-pg
+    type: postgres
+    url: postgres:5432
+    user: iot
+    secureJsonData:
+      password: $DB_PASSWORD
+    jsonData:
+      database: iot
+      sslmode: disable
+      postgresVersion: 1600
+    isDefault: true
+    editable: false

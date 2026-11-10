@@ -1,0 +1,65 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: iot
+      POSTGRES_USER: iot
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Define DB_PASSWORD}
+    volumes: ["pgdata:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U iot"]
+      interval: 5s
+      retries: 20
+    restart: unless-stopped
+  app:
+    build: .
+    environment:
+      DATABASE_URL: postgresql://iot:${DB_PASSWORD}@postgres/iot
+      ADMIN_TOKEN: ${ADMIN_TOKEN:?Define ADMIN_TOKEN}
+      MQTT_HOST: mosquitto
+      MQTT_PASSWORD: ${MQTT_PASSWORD:?Define MQTT_PASSWORD}
+      AZURE_MAPS_KEY: ${AZURE_MAPS_KEY:-}
+      WEATHER_LAT: ${WEATHER_LAT:-7.11703}
+      WEATHER_LON: ${WEATHER_LON:--73.10534}
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      GROQ_MODEL: ${GROQ_MODEL:-openai/gpt-oss-120b}
+    depends_on:
+      postgres: {condition: service_healthy}
+    restart: unless-stopped
+  mosquitto:
+    image: eclipse-mosquitto:2
+    volumes:
+      - ./mosquitto:/mosquitto/config:ro
+      - mqttdata:/mosquitto/data
+    restart: unless-stopped
+  grafana:
+    image: grafana/grafana:11.6.0
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:?Define GRAFANA_PASSWORD}
+      GF_USERS_ALLOW_SIGN_UP: 'false'
+      GF_SERVER_ROOT_URL: https://${GRAFANA_DOMAIN}
+      DB_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafanadata:/var/lib/grafana
+    depends_on: [postgres]
+    restart: unless-stopped
+  caddy:
+    image: caddy:2
+    ports: ["80:80", "443:443"]
+    environment:
+      APP_DOMAIN: ${APP_DOMAIN:?Define APP_DOMAIN}
+      GRAFANA_DOMAIN: ${GRAFANA_DOMAIN:?Define GRAFANA_DOMAIN}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddydata:/data
+      - caddyconfig:/config
+    depends_on: [app, grafana]
+    restart: unless-stopped
+volumes:
+  pgdata:
+  mqttdata:
+  grafanadata:
+  caddydata:
+  caddyconfig:

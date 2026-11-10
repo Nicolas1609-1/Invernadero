@@ -1,0 +1,6 @@
+{$APP_DOMAIN} {
+    reverse_proxy app:8080
+}
+{$GRAFANA_DOMAIN} {
+    reverse_proxy grafana:3000
+}

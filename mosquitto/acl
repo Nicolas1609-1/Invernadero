@@ -1,0 +1,12 @@
+user service
+topic read greenhouse/+/telemetry
+topic read greenhouse/+/command
+topic write greenhouse/+/ack
+
+user operator
+topic write greenhouse/+/command
+topic read greenhouse/+/ack
+
+pattern write greenhouse/%u/telemetry
+pattern read greenhouse/%u/command
+pattern write greenhouse/%u/ack
